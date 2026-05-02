@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/ad-1/sentic-aggregator
+  pullPolicy: IfNotPresent
+  # Overridden per environment in values-<env>.yaml. CI writes the new tag there via PR.
+  tag: ""
+
+rabbitmq:
+  secretName: definition-default-user
+  consumeQueue: rich-content
+  publishQueue: enriched-batches
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

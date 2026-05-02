@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sentic-aggregator.fullname" . }}
+  namespace: sentic
+  labels:
+    {{ include "sentic-aggregator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "sentic-aggregator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "sentic-aggregator.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: sentic-aggregator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "-m", "sentic_aggregator.main"]
+          env:
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.secretName }}
+                  key: host
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.secretName }}
+                  key: port
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.secretName }}
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.secretName }}
+                  key: password
+            - name: RABBITMQ_CONSUME_QUEUE
+              value: {{ .Values.rabbitmq.consumeQueue | quote }}
+            - name: RABBITMQ_PUBLISH_QUEUE
+              value: {{ .Values.rabbitmq.publishQueue | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
