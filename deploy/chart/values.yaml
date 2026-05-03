@@ -3,8 +3,8 @@ replicaCount: 1
 image:
   repository: ghcr.io/ad-1/sentic-aggregator
   pullPolicy: IfNotPresent
-  # Overridden per environment in values-<env>.yaml. CI writes the new tag there via PR.
-  tag: ""
+  # CI updates image.tag here via a PR on every successful image push.
+  tag: "latest"
 
 rabbitmq:
   secretName: definition-default-user
